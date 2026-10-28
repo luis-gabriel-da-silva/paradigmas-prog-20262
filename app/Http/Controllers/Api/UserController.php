@@ -3,17 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AttachUserClassroomRequest;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\UserService;
+use App\Http\Services\UserClassroomService;
 use Illuminate\Http\Request;
-use App\Http\Requests\AttachUserClassroomRequest;
-use App\Services\UserClassroomService;
 
 class UserController extends Controller
 {
-    public function __construct(public UserService $userService)
-    {
+    public function __construct(
+        private readonly UserService $userService,
+        private readonly UserClassroomService $userClassroomService
+    ) {
     }
 
     /**
@@ -21,7 +23,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return UserResource::collection($this->userService->getWithFilters($request->all()));
+        return UserResource::collection(
+            $this->userService->getWithFilters($request->all())
+        );
     }
 
     /**
@@ -48,7 +52,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:100', 'min:3'],
             'email' => ['sometimes', 'email'],
-            'password' => ['sometimes', 'min:4', 'max:20']
+            'password' => ['sometimes', 'min:4', 'max:20'],
         ]);
 
         return new UserResource($this->userService->update($data, $id));
@@ -59,15 +63,14 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->destroy($id);
+        $this->userService->destroy($id);
 
-        return response('Usuário deletado com sucesso!');
-    }
-    public function __construct(
-        private readonly UserClassroomService $userClassroomService
-    ) {
+        return response()->json(['message' => 'Usuário deletado com sucesso!']);
     }
 
+    /**
+     * Adiciona ou remove o usuário de uma turma (toggle).
+     */
     public function attachUserClassroom(AttachUserClassroomRequest $request, int $id)
     {
         $result = $this->userClassroomService->toggle(

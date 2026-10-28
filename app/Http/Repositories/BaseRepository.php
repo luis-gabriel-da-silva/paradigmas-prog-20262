@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class BaseRepository
 {
     public function __construct(private Model $model)
-    {}
+    {
+    }
 
     public function index(Builder $builder)
     {

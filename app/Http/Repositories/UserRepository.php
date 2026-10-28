@@ -1,10 +1,9 @@
 <?php
 
 namespace App\Http\Repositories;
-namespace App\Repositories\Contracts;
-
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserRepository extends BaseRepository
 {
@@ -27,7 +26,6 @@ class UserRepository extends BaseRepository
 
         return $this->index($builder);
     }
-    use App\Models\User;
 
     public function findOrFail(int $id): User
     {
